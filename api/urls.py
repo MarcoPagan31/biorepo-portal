@@ -28,6 +28,14 @@ urlpatterns = [
     url(r'^protocols/(?P<pk>[0-9]+)/organizations/$',
         views.ProtocolOrganizationView.as_view(),
         name='protocol-organization-list'),
+    # get all relationships for a given subject
+    url(r'^protocols/(?P<pk>[0-9]+)/pedigree/subject/(?P<subject>[0-9]+)$',
+        views.ProtocolPedigreeDetailView.as_view(),
+        name='protocol-subject-pedigree'),
+    # get all realtionships in a protocol
+    url(r'^protocols/(?P<pk>[0-9]+)/pedigree/$',
+        views.ProtocolPedigreeDetailView.as_view(),
+        name='protocol-pedigree'),
     url(
         r'^protocoldatasources/(?P<pk>[0-9]+)/subjects/(?P<subject>[0-9]+)/records/$',
         views.PDSSubjectRecordsView.as_view(),
@@ -49,5 +57,17 @@ urlpatterns = [
         views.PDSAvailableLinksView.as_view(),
         name='pds-links'),
     url(r'^', include(router.urls)),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    # to create a relationship between subjects
+    url(r'^pedigree/create$',
+        views.RelationshipDetailView.as_view(),
+        name='pedigree-create'),
+    # get relationships by subject id
+    url(r'^pedigree/subject_id/(?P<pk>[0-9]+)/$',
+        views.RelationshipDetailView.as_view(),
+        name='pedigree-get-by-subject-id'),
+    # get relationships by protocol
+    url(r'^pedigree/protocol_id/(?P<pk>[0-9]+)/$',
+        views.RelationshipDetailView.as_view(),
+        name='pedigree-get-by-protocol-id')
 ]
