@@ -6,7 +6,7 @@ import BackButton from '../BackButton';
 import LoadingGif from '../LoadingGif';
 import SubjectPanel from './SubjectPanel';
 import RecordPanel from './RecordPanel';
-import SubjectPedigreePanel from './SubjectPedigreePanel'
+import PedigreePanel from './PedigreePanel'
 import EditLabelModal from './Modals/EditLabel';
 import * as ProtocolActions from '../../actions/protocol';
 import * as SubjectActions from '../../actions/subject';
@@ -33,11 +33,13 @@ class SubjectView extends React.Component {
     const path = this.props.location.pathname;
     return (subject ?
       <div className="subject-view">
-        <BackButton />
-        <SubjectPanel subject={subject} edit={this.props.params.edit} path={path} />
-          {this.props.editLabelMode ? <EditLabelModal /> : null}
-          <SubjectPedigreePanel/>
+        <div className="col">
+          <SubjectPanel subject={subject} edit={this.props.params.edit} path={path} />
+          <PedigreePanel/>
+        </div>
         <RecordPanel subject={subject} />
+          {this.props.editLabelMode ? <EditLabelModal /> : null}
+        <BackButton />
       </div>
       :
       <LoadingGif />
