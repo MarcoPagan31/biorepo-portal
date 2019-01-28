@@ -32,6 +32,10 @@ urlpatterns = [
     url(r'^protocols/(?P<pk>[0-9]+)/pedigree/subject/(?P<subject>[0-9]+)$',
         views.ProtocolPedigreeDetailView.as_view(),
         name='protocol-subject-pedigree'),
+    # Create Pedigree Relationhip
+    url(r'^protocols/(?P<pk>[0-9]+)/pedigree/create/$',
+        views.ProtocolPedigreeDetailView.as_view(),
+        name='protocol-pedigree-create'),
     # get all realtionships in a protocol
     url(r'^protocols/(?P<pk>[0-9]+)/pedigree/$',
         views.ProtocolPedigreeDetailView.as_view(),
