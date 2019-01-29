@@ -33,13 +33,21 @@ class SubjectView extends React.Component {
     const path = this.props.location.pathname;
     return (subject ?
       <div className="subject-view">
-        <div className="col">
-          <SubjectPanel subject={subject} edit={this.props.params.edit} path={path} />
-          <PedigreePanel/>
+        <div className="row">
+          <div className="col-md-4">
+            <section>
+              <SubjectPanel subject={subject} edit={this.props.params.edit} path={path} />
+            </section>
+            <section>
+              <PedigreePanel />
+            </section>
+          </div>
+          <div className="col-md-8">
+            <RecordPanel subject={subject} />
+            {this.props.editLabelMode ? <EditLabelModal /> : null}
+            <BackButton />
+          </div>
         </div>
-        <RecordPanel subject={subject} />
-          {this.props.editLabelMode ? <EditLabelModal /> : null}
-        <BackButton />
       </div>
       :
       <LoadingGif />
