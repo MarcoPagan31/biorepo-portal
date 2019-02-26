@@ -19,7 +19,6 @@ class PedigreeEditView extends React.Component {
       relatedSubject: '',
       subjectRole: '',
       relatedSubjectRole: '',
-      hcRelTypes: ['brother', 'sister', 'biological mother','biological father', 'fetus'],
     };
     this.handleRelatedSubjectSelect = this.handleRelatedSubjectSelect.bind(this);
     this.handleSubject1RoleSelect = this.handleSubject1RoleSelect.bind(this);
@@ -47,11 +46,13 @@ class PedigreeEditView extends React.Component {
   }
 
   menuItemsRelTypes(){
+    console.log("prop relTypes:")
+    console.log(this.props.relTypes);
     let relTypeList = null;
-    const relTypes = this.state.hcRelTypes;
+    const relTypes = this.props.relTypes;
     relTypeList =
       relTypes.map((rel, i) => (
-        <MenuItem key={i} value={rel} primaryText={rel} />
+        <MenuItem key={i} value={rel.id} primaryText={rel.desc} />
       ))
 
       return relTypeList;
