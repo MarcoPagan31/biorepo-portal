@@ -23,13 +23,13 @@ function pedigree(state = initialState, action){
       });
     case REQUEST_RELATIONSHIP_TYPES:
       return Object.assign({}, state, {
-        items: [],
+        relTypes: [],
         isFetching: true,
       });
     case RECEIVE_RELATIONSHIP_TYPES:
       return Object.assign({}, state, {
         isFetching: false,
-        relTypes: action.pedigree
+        relTypes: action.relTypes
       })
     case SET_ACTIVE_PEDIGREE:
       return Object.assign({}, state, {
