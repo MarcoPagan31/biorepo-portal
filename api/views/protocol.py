@@ -440,12 +440,12 @@ class ProtocolPedigreeDetailView(BRPApiView):
     # will return true if request body is valid, otherwise will return error
     def validate_req_body(self, relationship):
         try:
-            subject_1 = relationship['subject_1']
+            subject_1_id = relationship['subject_1']
         except:
             return {'error': 'missing subject_1 from request'}
 
         try:
-            subject_2 = relationship['subject_2']
+            subject_2_id = relationship['subject_2']
         except:
             return {'error': 'missing subject_2 from request'}
 
@@ -459,13 +459,13 @@ class ProtocolPedigreeDetailView(BRPApiView):
         except:
             return {'error': 'missing subject_2 from request'}
 
-        valid_subjects = self.check_subject(subject_1, subject_2)
+        valid_subjects = self.check_subject(subject_1_id, subject_2_id)
         if valid_subjects is not True:
             return (valid_subjects)
 
         return True
 
-    def post(self, request):
+    def post(self, request, pk,):
         '''
         Add a subject relationship to the protocol
 
@@ -485,8 +485,8 @@ class ProtocolPedigreeDetailView(BRPApiView):
 
         try:
             new_relationship = PedigreeRelationship(
-                subject_1=relationship['subject_1'],
-                subject_2=relationship['subject_2'],
+                subject_1_id=relationship['subject_1'],
+                subject_2_id=relationship['subject_2'],
                 subject_1_role=relationship['subject_1_role'],
                 subject_2_role=relationship['subject_2_role'],
                 protocol_id=relationship['protocol_id']
