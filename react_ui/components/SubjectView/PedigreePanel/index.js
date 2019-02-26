@@ -33,7 +33,7 @@ PedigreePanel.propTypes = {
   pedigree: React.PropTypes.object,
   isFetching: React.PropTypes.bool,
   subjects: React.PropTypes.array,
-  relTypes: React.PropTypes.object,
+  relTypes: React.PropTypes.array,
 };
 
 function mapStateToProps(state) {
