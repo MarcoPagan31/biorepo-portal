@@ -1,5 +1,3 @@
-// jscs:disable requireCamelCaseOrUpperCaseIdentifiers
-// jscs:disable maximumLineLength
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
@@ -12,34 +10,32 @@ import SelectField from 'material-ui/lib/select-field';
 import MenuItem from 'material-ui/lib/menus/menu-item';
 import TextField from 'material-ui/lib/text-field';
 
-// import moment from 'moment';
-
 class PedigreeEditView extends React.Component {
 
   constructor(props) {
     super(props);
-    this.handleCloseClick = this.handleCloseClick.bind(this);
+
     this.state = {
       relatedSubject: '',
       subjectRole: '',
       relatedSubjectRole: '',
-    }
+      hcRelTypes: ['brother', 'sister', 'biological mother','biological father', 'fetus'],
+    };
+    this.handleRelatedSubjectSelect = this.handleRelatedSubjectSelect.bind(this);
+    this.handleSubject1RoleSelect = this.handleSubject1RoleSelect.bind(this);
+    this.handleSubject2RoleSelect = this.handleSubject2RoleSelect.bind(this);
+    this.handleCloseClick = this.handleCloseClick.bind(this);
   }
-
-
-  // componentWillMount(){
-  //   const { dispatch } = this.props;
-  //   dispatch(SubjectActions.fetchSubjects(this.props.protocol.activeProtocolId));
-  // }
 
   menuItemsSubjects(){
     let subjectList = null;
     const subjects = this.props.subject.items;
     console.log(subjects !=null)
     if(subjects !=null){
+      console.log("we are in if statement")
       subjectList =
         subjects.map((subject, i) => (
-          <MenuItem key={i} value={subject[0]} primaryText={subject.organization_subject_id} />
+          <MenuItem key={i} value={subject.id} primaryText={subject.organization_subject_id} />
         ));
     }
     else{
@@ -50,19 +46,38 @@ class PedigreeEditView extends React.Component {
     return subjectList;
   }
 
+  menuItemsRelTypes(){
+    let relTypeList = null;
+    const relTypes = this.state.hcRelTypes;
+    relTypeList =
+      relTypes.map((rel, i) => (
+        <MenuItem key={i} value={rel} primaryText={rel} />
+      ))
+
+      return relTypeList;
+  }
+
   restorePedigree() {
     // Restores the current Pedigree view with server's pedigree state
     const { dispatch } = this.props;
 
   }
 
-  handleRelationshipSelect(e, index, value) {
-    const { dispatch } = this.props;
-    // dispatch(RecordActions.setSelectedRelationship(value));
+  handleRelatedSubjectSelect(e, index, value) {
+    this.setState({relatedSubject: value});
+  }
+
+  handleSubject1RoleSelect(e, index, value){
+    this.setState({subjectRole: value});
+  }
+
+  handleSubject2RoleSelect(e, index, value){
+    this.setState({relatedSubjectRole: value});
   }
 
   handleNewpedRelClick(e) {
     const { dispatch } = this.props;
+    //todo Program this
   }
 
   handleCloseClick() {
@@ -72,17 +87,13 @@ class PedigreeEditView extends React.Component {
     // this.context.history.goBack();
   }
 
-
-  isValid() {
-    // validate pedigree relationship form
-  }
-
   renderErrors() {
     //
   }
 
 
   render() {
+    console.log(this.state.subjectRole);
     const backdropStyle = {
       position: 'fixed',
       top: '0px',
@@ -124,6 +135,7 @@ class PedigreeEditView extends React.Component {
                     <div className="col-md-6">
                       <SelectField
                         floatingLabelText={'Related Subject'}
+                        onChange={this.handleRelatedSubjectSelect}
                         style={{ width: '100%' }}
                         value={this.state.relatedSubject}
                       >
@@ -131,27 +143,25 @@ class PedigreeEditView extends React.Component {
                       </SelectField>
                     </div>
                   </row>
-
                   <row>
                   <div className="col-md-6">
                     <SelectField
                       floatingLabelText={'Subject Role'}
                       style={{ width: '100%' }}
-                      value={this.props.subject.activeSubject.organization_subject_id}
+                      value={this.state.subjectRole}
+                      onChange={this.handleSubject1RoleSelect}
                     >
-                      <MenuItem primaryText={this.props.subject.activeSubject.organization_subject_id}>
-                      </MenuItem>
+                      {this.menuItemsRelTypes()}
                     </SelectField>
                   </div>
                   <div className="col-md-6">
                     <SelectField
                       floatingLabelText={'Related Subject Role'}
                       style={{ width: '100%' }}
-                      value={this.props.subject.activeSubject.organization_subject_id}
-
+                      value={this.state.relatedSubjectRole}
+                      onChange={this.handleSubject2RoleSelect}
                     >
-                    <MenuItem primaryText={this.props.subject.activeSubject.organization_subject_id}>
-                    </MenuItem>
+                    {this.menuItemsRelTypes()}
                     </SelectField>
                   </div>
                   </row>
@@ -175,17 +185,13 @@ class PedigreeEditView extends React.Component {
   }
 }
 
-// Provides History to the SubjectCardEdit component
-// SubjectCardEdit.contextTypes = {
-//   history: React.PropTypes.object,
-// };
-
 PedigreeEditView.propTypes = {
   dispatch: React.PropTypes.func,
   protocol: React.PropTypes.object,
   subject: React.PropTypes.object,
   pds: React.PropTypes.object,
   savingSubject: React.PropTypes.bool,
+  relTypes: React.PropTypes.object,
 };
 
 function mapStateToProps(state) {
@@ -204,6 +210,7 @@ function mapStateToProps(state) {
       items: state.pds.items,
     },
     savingSubject: state.subject.isSaving,
+    relTypes: state.pedigree.relTypes
   };
 }
 
