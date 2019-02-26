@@ -4,14 +4,6 @@ import * as SubjectActions from '../../../actions/subject';
 import PedigreeCardView from './PedigreeCardView';
 import { connect } from 'react-redux';
 
-// const SubjectPedigreePanel = (props) => {
-//   return <SubjectPedigreeCardView />;
-// };
-//
-// SubjectPedigreePanel.propTypes = {
-//   edit: React.PropTypes.string,
-//   path: React.PropTypes.string,
-// };
 class PedigreePanel extends React.Component {
   componentDidMount() {
     const { dispatch } = this.props;
@@ -19,6 +11,7 @@ class PedigreePanel extends React.Component {
       this.props.activeProtocolId,
       this.props.activeSubject.id));
     dispatch(SubjectActions.fetchSubjects(this.props.activeProtocolId));
+    dispatch(PedigreeActions.fetchRelationshipTypes());
   }
 
   componentWillUnmount() {
@@ -40,6 +33,7 @@ PedigreePanel.propTypes = {
   pedigree: React.PropTypes.object,
   isFetching: React.PropTypes.bool,
   subjects: React.PropTypes.array,
+  relTypes: React.PropTypes.object,
 };
 
 function mapStateToProps(state) {
@@ -47,6 +41,7 @@ function mapStateToProps(state) {
     pedigree: {
       isFetching: state.pedigree.isFetching,
       items: state.pedigree,
+      relType: state.pedigree.relType,
     },
     activeSubject: state.subject.activeSubject,
     activeRecord: state.record.activeRecord,
@@ -57,5 +52,3 @@ function mapStateToProps(state) {
 }
 
 export default connect(mapStateToProps)(PedigreePanel);
-// export default PedigreePanel;
-// export default connect(SubjectPedigreePanel);
