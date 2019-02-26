@@ -75,7 +75,14 @@ class PedigreeEditView extends React.Component {
 
   handleNewpedRelClick(e) {
     const { dispatch } = this.props;
-    //todo Program this
+    const newRel = {
+        "subject_1": this.props.subject.activeSubject.id,
+        "subject_2": this.state.relatedSubject,
+        "subject_1_role": this.state.subjectRole,
+        "subject_2_role": this.state.relatedSubjectRole,
+        "protocol_id": this.props.protocol.activeProtocolId,
+    }
+    dispatch(PedigreeActions.addPedigreeRel(this.props.protocol.activeProtocolId, newRel))
   }
 
   handleCloseClick() {
@@ -188,7 +195,7 @@ PedigreeEditView.propTypes = {
   subject: React.PropTypes.object,
   pds: React.PropTypes.object,
   savingSubject: React.PropTypes.bool,
-  relTypes: React.PropTypes.object,
+  relTypes: React.PropTypes.array,
 };
 
 function mapStateToProps(state) {
