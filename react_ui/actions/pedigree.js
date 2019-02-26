@@ -1,5 +1,6 @@
 
 import fetch from 'isomorphic-fetch';
+import * as NotificationActions from './notification';
 
 export const REQUEST_PEDIGREE = 'REQUEST_PEDIGREE';
 export const RECEIVE_PEDIGREE = 'RECEIVE_PEDIGREE';
@@ -10,6 +11,9 @@ export const ADD_PEDIGREE_REL_FAILURE = 'ADD_PEDIGREE_REL_FAILURE';
 export const SET_ADD_PEDIGREE_REL_MODE = 'SET_ADD_PEDIGREE_REL_MODE';
 export const CLEAR_PEDIGREE_STATE = 'CLEAR_PEDIGREE_STATE';
 export const SET_UPDATE_FORM_ERRORS = 'SET_UPDATE_FORM_ERRORS';
+export const REQUEST_RELATIONSHIP_TYPES = 'REQUEST_RELATIONSHIP_TYPES';
+export const RECEIVE_RELATIONSHIP_TYPES = 'RECEIVE_RELATIONSHIP_TYPES';
+
 
 function checkResponse(response) {
   if (response.status >= 200 && response.status < 300) {
@@ -32,6 +36,66 @@ export function receivePedigree(json) {
       pedigree: json,
     };
   }
+
+export function requestRelTypes() {
+  return{
+    type: REQUEST_RELATIONSHIP_TYPES,
+  };
+}
+
+export function receiveRelTypes(json) {
+  return {
+    type: RECEIVE_RELATIONSHIP_TYPES,
+    relTypes: json,
+  };
+}
+
+export function fetchRelationshipTypes() {
+  const url = `http://127.0.0.1:8000/api/pedigree/relationship_types`;
+  return dispatch => {
+    dispatch(requestRelTypes());
+  //   return fetch(url, {
+  //     method: 'GET',
+  //     headers: {
+  //       Accept: 'application/json',
+  //       token: `token ${token}`,
+  //       'Api-token': 
+  //     },
+  //   })
+  //   .then(checkResponse)
+  //   .then(response => response.json())
+  //   .then(json => dispatch(receiveRelTypes(json)));
+  // };
+  const json = [
+    {
+        "desc": "Maternal",
+        "id": 2,
+        "typ": "familial"
+    },
+    {
+        "desc": "Paternal",
+        "id": 3,
+        "typ": "familial"
+    },
+    {
+        "desc": "Child",
+        "id": 7,
+        "typ": "familial"
+    },
+    {
+        "desc": "Sister",
+        "id": 8,
+        "typ": "familial-sibling"
+    },
+    {
+        "desc": "Brother",
+        "id": 6,
+        "typ": "familial-sibling"
+    }
+  ]
+  return dispatch(receiveRelTypes(json));
+}
+}
 
 export function fetchPedigree(protocolID, subjectId) {
   const url = `api/protocols/${protocolID}/pedigree/subject/${subjectId}`;
@@ -75,7 +139,7 @@ export function checkAddPedigreeRel(json) {
   if (success) {
     return relationship;
   }
-  const error = new Error('Unable to add subject');
+  const error = new Error('Unable to add relationship');
   error.errors = errors;
   throw error;
 }
@@ -119,7 +183,7 @@ export function addPedigreeRelFailure(error) {
     errors,
   };
 }
-export function setUpdateFormErrors(errors) {
+export function setUpdateFormErrors(error) {
   return {
     type: SET_UPDATE_FORM_ERRORS,
     errors,
@@ -135,7 +199,6 @@ export function addPedigreeRel(protocolId, pedigreeRel) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Accept: 'application/json',
         Authorization: `token ${token}`,
         'X-CSRFToken': csrf_token,
       },
@@ -144,7 +207,7 @@ export function addPedigreeRel(protocolId, pedigreeRel) {
       .then(response => response.json())
       .then(checkAddPedigreeRel)
       .then(pedigreeRel => dispatch(addPedigreeRelSuccess(pedigreeRel)))
-      .catch(errors => dispatch(addPedigreeRelFailure(errors)));
+      .catch(error => dispatch(addPedigreeRelFailure(error)));
   };
 }
 
