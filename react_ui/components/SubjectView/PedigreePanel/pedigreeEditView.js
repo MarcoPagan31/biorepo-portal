@@ -24,14 +24,13 @@ class PedigreeEditView extends React.Component {
     this.handleSubject1RoleSelect = this.handleSubject1RoleSelect.bind(this);
     this.handleSubject2RoleSelect = this.handleSubject2RoleSelect.bind(this);
     this.handleCloseClick = this.handleCloseClick.bind(this);
+    this.handleNewpedRelClick = this.handleNewpedRelClick.bind(this);
   }
 
   menuItemsSubjects(){
     let subjectList = null;
     const subjects = this.props.subject.items;
-    console.log(subjects !=null)
     if(subjects !=null){
-      console.log("we are in if statement")
       subjectList =
         subjects.map((subject, i) => (
           <MenuItem key={i} value={subject.id} primaryText={subject.organization_subject_id} />
@@ -46,8 +45,6 @@ class PedigreeEditView extends React.Component {
   }
 
   menuItemsRelTypes(){
-    console.log("prop relTypes:")
-    console.log(this.props.relTypes);
     let relTypeList = null;
     const relTypes = this.props.relTypes;
     relTypeList =
@@ -94,7 +91,6 @@ class PedigreeEditView extends React.Component {
 
 
   render() {
-    console.log(this.state.subjectRole);
     const backdropStyle = {
       position: 'fixed',
       top: '0px',
