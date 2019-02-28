@@ -61,6 +61,7 @@ function pedigree(state = initialState, action){
           form: [],
         },
         isSaving: false,
+        addPedigreeRelMode: false,
       });
     case ADD_PEDIGREE_REL_FAILURE:
       return Object.assign({}, state, {

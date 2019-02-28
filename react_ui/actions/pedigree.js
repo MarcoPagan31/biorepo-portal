@@ -59,7 +59,7 @@ export function fetchRelationshipTypes() {
   //     headers: {
   //       Accept: 'application/json',
   //       token: `token ${token}`,
-  //       'Api-token': 
+  //       'Api-token':
   //     },
   //   })
   //   .then(checkResponse)
@@ -172,7 +172,7 @@ export function addPedigreeRelSuccess(pedigreeRel) {
       type: ADD_PEDIGREE_REL_SUCCESS,
       isSaving: false,
       pedigreeRel,
-    });
+    })
   };
 }
 
@@ -207,7 +207,7 @@ export function addPedigreeRel(protocolId, pedigreeRel) {
       .then(response => response.json())
       .then(checkAddPedigreeRel)
       .then(pedigreeRel => dispatch(addPedigreeRelSuccess(pedigreeRel)))
-      .catch(error => dispatch(addPedigreeRelFailure(error)));
+      .then(dispatch(fetchPedigree(protocolId, pedigreeRel.subject_1)))
   };
 }
 
