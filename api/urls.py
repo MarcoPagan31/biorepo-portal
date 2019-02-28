@@ -9,6 +9,7 @@ router.register(r'organizations', views.OrganizationViewSet)
 router.register(r'protocols', views.ProtocolViewSet)
 router.register(r'datasources', views.DataSourceViewSet)
 router.register(r'protocoldatasources', views.PDSViewSet)
+# router.register(r'pedigree', views.RelationshipDetailView)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include the login URLs for the browsable API
@@ -73,5 +74,8 @@ urlpatterns = [
     # get relationships by protocol
     url(r'^pedigree/protocol_id/(?P<pk>[0-9]+)/$',
         views.RelationshipDetailView.as_view(),
-        name='pedigree-get-by-protocol-id')
+        name='pedigree-get-by-protocol-id'),
+    url(r'^pedigree/relationship_types/',
+        views.RelationshipDetailView.as_view(),
+        name='pedigree-get-rel-types')
 ]

@@ -8,6 +8,7 @@ from ehb_client.requests.subject_request_handler import SubjectRequestHandler
 from ehb_client.requests.organization_request_handler import OrganizationRequestHandler  # noqa
 from ehb_client.requests.group_request_handler import GroupRequestHandler
 from ehb_client.requests.pedigree_relationships_handler import PedigreeRelationshipRequestHandeler
+from ehb_client.requests.pedigree_relationships_handler import RelationshipTypeRequestHandler
 
 
 class ServiceClient(object):
@@ -46,6 +47,7 @@ class ServiceClient(object):
     org_client = OrganizationRequestHandler(host, root_path, isSecure, api_key)
     group_client = GroupRequestHandler(host, root_path, isSecure, api_key)
     relationship_client = PedigreeRelationshipRequestHandeler(host, root_path, isSecure, api_key)
+    relationship_type_client = RelationshipTypeRequestHandler(host, root_path, isSecure, api_key)
 
     SUBJECT = 0
     EXTERNAL_SYSTEM = 1
@@ -55,6 +57,7 @@ class ServiceClient(object):
     EXTERNAL_RECORD_LABEL = 5
     EXTERNAL_RECORD_RELATION = 6
     RELATIONSHIP = 7
+    RELATIONSHIP_TYPE = 8
 
     req_handlers = {
         EXTERNAL_SYSTEM: ext_sys_client,
@@ -64,7 +67,8 @@ class ServiceClient(object):
         SUBJECT: subj_client,
         ORGANIZATION: org_client,
         GROUP: group_client,
-        RELATIONSHIP: relationship_client
+        RELATIONSHIP: relationship_client,
+        RELATIONSHIP_TYPE: relationship_type_client
     }
 
     @staticmethod
@@ -107,6 +111,8 @@ class ServiceClient(object):
                     return ServiceClient.group_client
                 elif c.__name__ == 'Relationship':
                     return ServiceClient.relationship_client
+                elif c.__name__ == 'Relationship_type':
+                    return ServiceClient.relationship_type_client
 
         else:
             return None
