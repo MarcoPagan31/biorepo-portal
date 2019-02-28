@@ -46,7 +46,8 @@ class PedigreeEditView extends React.Component {
 
   menuItemsRelTypes(){
     let relTypeList = null;
-    const relTypes = this.props.relTypes;
+    const relTypes = this.props.relTypes[0];
+    console.log(relTypes)
     relTypeList =
       relTypes.map((rel, i) => (
         <MenuItem key={i} value={rel.id} primaryText={rel.desc} />
@@ -83,6 +84,7 @@ class PedigreeEditView extends React.Component {
         "protocol_id": this.props.protocol.activeProtocolId,
     }
     dispatch(PedigreeActions.addPedigreeRel(this.props.protocol.activeProtocolId, newRel))
+    .then(dispatch(PedigreeActions.fetchPedigree(this.props.protocol.activeProtocolId, newRel.subject_1)))
   }
 
   handleCloseClick() {

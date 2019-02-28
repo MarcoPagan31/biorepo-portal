@@ -51,50 +51,49 @@ export function receiveRelTypes(json) {
 }
 
 export function fetchRelationshipTypes() {
-  const url = `http://127.0.0.1:8000/api/pedigree/relationship_types`;
+  const url = `api/pedigree/relationship_types`;
   return dispatch => {
     dispatch(requestRelTypes());
-  //   return fetch(url, {
-  //     method: 'GET',
-  //     headers: {
-  //       Accept: 'application/json',
-  //       token: `token ${token}`,
-  //       'Api-token':
-  //     },
-  //   })
-  //   .then(checkResponse)
-  //   .then(response => response.json())
-  //   .then(json => dispatch(receiveRelTypes(json)));
-  // };
-  const json = [
-    {
-        "desc": "Maternal",
-        "id": 2,
-        "typ": "familial"
-    },
-    {
-        "desc": "Paternal",
-        "id": 3,
-        "typ": "familial"
-    },
-    {
-        "desc": "Child",
-        "id": 7,
-        "typ": "familial"
-    },
-    {
-        "desc": "Sister",
-        "id": 8,
-        "typ": "familial-sibling"
-    },
-    {
-        "desc": "Brother",
-        "id": 6,
-        "typ": "familial-sibling"
-    }
-  ]
-  return dispatch(receiveRelTypes(json));
-}
+    return fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        Authorization: `token ${token}`,
+      },
+    })
+    .then(checkResponse)
+    .then(response => response.json())
+    .then(json => dispatch(receiveRelTypes(json)));
+  };
+  // const json = [
+  //   {
+  //       "desc": "Maternal",
+  //       "id": 2,
+  //       "typ": "familial"
+  //   },
+  //   {
+  //       "desc": "Paternal",
+  //       "id": 3,
+  //       "typ": "familial"
+  //   },
+  //   {
+  //       "desc": "Child",
+  //       "id": 7,
+  //       "typ": "familial"
+  //   },
+  //   {
+  //       "desc": "Sister",
+  //       "id": 8,
+  //       "typ": "familial-sibling"
+  //   },
+  //   {
+  //       "desc": "Brother",
+  //       "id": 6,
+  //       "typ": "familial-sibling"
+  //   }
+  // ]
+  // return dispatch(receiveRelTypes(json));
+// }
 }
 
 export function fetchPedigree(protocolID, subjectId) {
@@ -207,7 +206,7 @@ export function addPedigreeRel(protocolId, pedigreeRel) {
       .then(response => response.json())
       .then(checkAddPedigreeRel)
       .then(pedigreeRel => dispatch(addPedigreeRelSuccess(pedigreeRel)))
-      .then(dispatch(fetchPedigree(protocolId, pedigreeRel.subject_1)))
+      // .then(dispatch(fetchPedigree(protocolId, pedigreeRel.subject_1)))
   };
 }
 
