@@ -73,10 +73,7 @@ function pedigree(state = initialState, action){
       });
     case SET_UPDATE_FORM_ERRORS:
       return Object.assign({}, state, {
-        updateFormErrors: {
-          server: [],
-          form: action.errors,
-        },
+        updateFormErrors: action.error,
       });
   default:
     return state;

@@ -185,7 +185,7 @@ export function addPedigreeRelFailure(error) {
 export function setUpdateFormErrors(error) {
   return {
     type: SET_UPDATE_FORM_ERRORS,
-    errors,
+    error,
   };
 }
 
@@ -206,7 +206,7 @@ export function addPedigreeRel(protocolId, pedigreeRel) {
       .then(response => response.json())
       .then(checkAddPedigreeRel)
       .then(pedigreeRel => dispatch(addPedigreeRelSuccess(pedigreeRel)))
-      // .then(dispatch(fetchPedigree(protocolId, pedigreeRel.subject_1)))
+      .then(dispatch(fetchPedigree(protocolId, pedigreeRel.subject_1)))
   };
 }
 

@@ -19,12 +19,14 @@ class PedigreeEditView extends React.Component {
       relatedSubject: '',
       subjectRole: '',
       relatedSubjectRole: '',
+      dataEntryCorrect: '',
     };
     this.handleRelatedSubjectSelect = this.handleRelatedSubjectSelect.bind(this);
     this.handleSubject1RoleSelect = this.handleSubject1RoleSelect.bind(this);
     this.handleSubject2RoleSelect = this.handleSubject2RoleSelect.bind(this);
     this.handleCloseClick = this.handleCloseClick.bind(this);
-    this.handleNewpedRelClick = this.handleNewpedRelClick.bind(this);
+    this.handleNewPedRelClick = this.handleNewPedRelClick.bind(this);
+    this.checkRelDataEntry = this.checkRelDataEntry.bind(this);
   }
 
   menuItemsSubjects(){
@@ -59,7 +61,6 @@ class PedigreeEditView extends React.Component {
   restorePedigree() {
     // Restores the current Pedigree view with server's pedigree state
     const { dispatch } = this.props;
-
   }
 
   handleRelatedSubjectSelect(e, index, value) {
@@ -74,31 +75,55 @@ class PedigreeEditView extends React.Component {
     this.setState({relatedSubjectRole: value});
   }
 
-  handleNewpedRelClick(e) {
+  checkRelDataEntry(){
     const { dispatch } = this.props;
-    const newRel = {
-        "subject_1": this.props.subject.activeSubject.id,
-        "subject_2": this.state.relatedSubject,
-        "subject_1_role": this.state.subjectRole,
-        "subject_2_role": this.state.relatedSubjectRole,
-        "protocol_id": this.props.protocol.activeProtocolId,
+    if (this.state.relatedSubject == '') {
+      dispatch(PedigreeActions.setUpdateFormErrors("please select related subject"))
+      this.setState({dataEntryCorrect: false});
+      return false;
     }
-    dispatch(PedigreeActions.addPedigreeRel(this.props.protocol.activeProtocolId, newRel))
-    .then(dispatch(PedigreeActions.fetchPedigree(this.props.protocol.activeProtocolId, newRel.subject_1)))
+    if (this.state.subjectRole == '') {
+      dispatch(PedigreeActions.setUpdateFormErrors("please select subject role"))
+      this.setState({dataEntryCorrect: false});
+      return false;
+    }
+    if (this.state.relatedSubjectRole == '') {
+      dispatch(PedigreeActions.setUpdateFormErrors("please select related subject role"))
+      this.setState({dataEntryCorrect: false});
+      return false;
+    }
+    else
+      console.log("related subject does not equal ''")
+      this.setState({dataEntryCorrect: true});
+      console.log(this.state.dataEntryCorrect);
+      return true;
+  }
+  handleNewPedRelClick(e) {
+    console.log("we are in handleNewPedRelClick")
+    const { dispatch } = this.props;
+    console.log(this.state.dataEntryCorrect)
+    if (this.checkRelDataEntry()) {
+      console.log(this.state.dataEntryCorrect)
+      const newRel = {
+          "subject_1": this.props.subject.activeSubject.id,
+          "subject_2": this.state.relatedSubject,
+          "subject_1_role": this.state.subjectRole,
+          "subject_2_role": this.state.relatedSubjectRole,
+          "protocol_id": this.props.protocol.activeProtocolId,
+      }
+      dispatch(PedigreeActions.addPedigreeRel(this.props.protocol.activeProtocolId, newRel))
+      .then(dispatch(PedigreeActions.fetchPedigree(this.props.protocol.activeProtocolId, newRel.subject_1)))
+    }
   }
 
   handleCloseClick() {
-    // TODO: create this function - this.restorePedigree();
     const { dispatch } = this.props;
     dispatch(PedigreeActions.setAddPedigreeRelMode(false));
-    // this.context.history.goBack();
   }
 
   renderErrors() {
-    //
+
   }
-
-
   render() {
     const backdropStyle = {
       position: 'fixed',
@@ -142,6 +167,7 @@ class PedigreeEditView extends React.Component {
                       <SelectField
                         floatingLabelText={'Related Subject'}
                         onChange={this.handleRelatedSubjectSelect}
+                        error={this.state.dataEntryCorrect}
                         style={{ width: '100%' }}
                         value={this.state.relatedSubject}
                       >
@@ -172,7 +198,7 @@ class PedigreeEditView extends React.Component {
                   </div>
                   </row>
                 <RaisedButton
-                  onClick={this.handleNewpedRelClick}
+                  onClick={this.handleNewPedRelClick}
                   label={'Create New'}
                   labelColor={'#7AC29A'}
                   type="submit"
@@ -184,6 +210,9 @@ class PedigreeEditView extends React.Component {
                   label="Cancel"
                   onClick={this.handleCloseClick}
                 />
+                {this.props.updateFormErrors != null ?
+                  <div className="alert alert-danger">{this.props.updateFormErrors}</div>
+                : null}
               </div>
             </div>
         </section>
@@ -198,6 +227,7 @@ PedigreeEditView.propTypes = {
   pds: React.PropTypes.object,
   savingSubject: React.PropTypes.bool,
   relTypes: React.PropTypes.array,
+  updateFormErrors: React.PropTypes.string,
 };
 
 function mapStateToProps(state) {
@@ -210,13 +240,13 @@ function mapStateToProps(state) {
     subject: {
       items: state.subject.items,
       activeSubject: state.subject.activeSubject,
-      updateFormErrors: state.subject.updateFormErrors,
     },
     pds: {
       items: state.pds.items,
     },
     savingSubject: state.subject.isSaving,
-    relTypes: state.pedigree.relTypes
+    relTypes: state.pedigree.relTypes,
+    updateFormErrors: state.pedigree.updateFormErrors
   };
 }
 
