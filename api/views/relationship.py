@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 
 from ehb_client.requests.pedigree_relationships_handler import PedigreeRelationship
+# from ehb_client.requests.pedigree_relationships_handler import RelationshipType
 from ehb_client.requests.subject_request_handler import Subject
 from .base import BRPApiView
 from api.models.protocols import Protocol
@@ -102,12 +103,11 @@ class RelationshipDetailView(BRPApiView):
             status=200
         )
 
-    def get(self, request, pk):
-        # returns list of relationships
-        try:
-            p = Protocol.objects.get(pk=pk)
-        except ObjectDoesNotExist:
-            return Response({'error': 'Protocol requested not found'}, status=404)
-        # TODO: when cache added - check for cache data handleRecordClick
-        if p.isUserAuthorized(request.user):
-            print (request.data)
+    def get(self, request):
+        # returns list of available relationship types
+        r = self.relationship_type_HB_handler.get()
+        return Response(
+            [json.loads(r)],
+            headers={'Access-Control-Allow-Origin': '*'},
+            status=200
+        )
