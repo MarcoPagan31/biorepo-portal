@@ -41,7 +41,7 @@ class SubjectView extends React.Component {
             </section>
             <section>
               <PedigreePanel />
-              {this.props.pedigree.addPedigreeRelMode ? <PedigreeEditView/> : null}
+              {this.props.pedigree.addPedigreeRelMode ? <pedigreeEditView/> : null}
             </section>
           </div>
           <div className="col-md-8">
