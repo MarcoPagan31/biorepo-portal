@@ -172,6 +172,7 @@ export function addPedigreeRelSuccess(pedigreeRel) {
       isSaving: false,
       pedigreeRel,
     })
+    dispatch(fetchPedigree(pedigreeRel.protocol, pedigreeRel.subject_1))
   };
 }
 
