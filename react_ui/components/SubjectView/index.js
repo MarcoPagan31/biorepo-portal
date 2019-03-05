@@ -8,7 +8,7 @@ import SubjectPanel from './SubjectPanel';
 import RecordPanel from './RecordPanel';
 import PedigreePanel from './PedigreePanel'
 import EditLabelModal from './Modals/EditLabel';
-import PedigreeEditView from './PedigreePanel/PedigreeEditView';
+import PedigreeEditView from './PedigreePanel/pedigreeEditView';
 import * as ProtocolActions from '../../actions/protocol';
 import * as SubjectActions from '../../actions/subject';
 
@@ -41,7 +41,7 @@ class SubjectView extends React.Component {
             </section>
             <section>
               <PedigreePanel />
-              {this.props.pedigree.addPedigreeRelMode ? <pedigreeEditView/> : null}
+              {this.props.pedigree.addPedigreeRelMode ? <PedigreeEditView/> : null}
             </section>
           </div>
           <div className="col-md-8">
