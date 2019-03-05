@@ -172,8 +172,6 @@ export function addPedigreeRelSuccess(pedigreeRel) {
       isSaving: false,
       pedigreeRel,
     })
-    console.log("we are in actions ped rel success")
-    console.log(pedigreeRel.protocol)
     dispatch(fetchPedigree(pedigreeRel.protocol_id, pedigreeRel.subject_1))
   };
 }
