@@ -139,12 +139,12 @@ class PedigreeEditView extends React.Component {
       padding: '15px',
       boxShadow: '3px 3px 14px rgba(204, 197, 185, 0.5)',
       backgroundColor: 'white',
+      width: '90%',
     };
     const modalStyle = {
-      left: '45%',
+      right: '0%',
       top: '20%',
-      marginLeft: '-5em',
-      marginBottom: '3em',
+      width: '90%',
       position: 'fixed',
       zIndex: '1000',
     };
@@ -152,7 +152,7 @@ class PedigreeEditView extends React.Component {
       return (
         <section>
           <div style={backdropStyle}></div>
-            <div className="col-sm-5 edit-label-modal" style={modalStyle}>
+            <div className="col-md-12 edit-label-modal" style={modalStyle}>
               <div className="card" style={cardStyle}>
                 <h3 className="category" style={{ textAlign: 'center' }}> Add a new Relationship </h3>
                   <row>
@@ -179,7 +179,7 @@ class PedigreeEditView extends React.Component {
                   <div className="col-md-6">
                     <SelectField
                       floatingLabelText={'Subject Role'}
-                      style={{ width: '100%' }}
+                      style={{ width: '100%',  }}
                       value={this.state.subjectRole}
                       onChange={this.handleSubject1RoleSelect}
                     >
@@ -189,7 +189,7 @@ class PedigreeEditView extends React.Component {
                   <div className="col-md-6">
                     <SelectField
                       floatingLabelText={'Related Subject Role'}
-                      style={{ width: '100%' }}
+                      style={{ width: '100%', overflowWrap: 'normal'}}
                       value={this.state.relatedSubjectRole}
                       onChange={this.handleSubject2RoleSelect}
                     >
