@@ -1,4 +1,5 @@
 import json
+from operator import itemgetter, attrgetter
 
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
@@ -104,10 +105,11 @@ class RelationshipDetailView(BRPApiView):
         )
 
     def get(self, request):
-        # returns list of available relationship types
+        # returns list of available relationship types sorted by desc field
         r = self.relationship_type_HB_handler.get()
+        rel_types = sorted(json.loads(r), key=lambda i: i['desc'])
         return Response(
-            [json.loads(r)],
+            [rel_types],
             headers={'Access-Control-Allow-Origin': '*'},
             status=200
         )
