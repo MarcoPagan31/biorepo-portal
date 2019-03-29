@@ -9,7 +9,7 @@ router.register(r'organizations', views.OrganizationViewSet)
 router.register(r'protocols', views.ProtocolViewSet)
 router.register(r'datasources', views.DataSourceViewSet)
 router.register(r'protocoldatasources', views.PDSViewSet)
-# router.register(r'pedigree', views.RelationshipDetailView)
+# router.register(r'subjFam', views.RelationshipDetailView)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include the login URLs for the browsable API
@@ -30,17 +30,17 @@ urlpatterns = [
         views.ProtocolOrganizationView.as_view(),
         name='protocol-organization-list'),
     # get all relationships for a given subject
-    url(r'^protocols/(?P<pk>[0-9]+)/pedigree/subject/(?P<subject>[0-9]+)$',
-        views.ProtocolPedigreeDetailView.as_view(),
-        name='protocol-subject-pedigree'),
-    # Create Pedigree Relationhip
-    url(r'^protocols/(?P<pk>[0-9]+)/pedigree/create/$',
-        views.ProtocolPedigreeDetailView.as_view(),
-        name='protocol-pedigree-create'),
+    url(r'^protocols/(?P<pk>[0-9]+)/subj_fam/subject/(?P<subject>[0-9]+)$',
+        views.ProtocolSubjFamDetailView.as_view(),
+        name='protocol-subject-subjFam'),
+    # Create subjFam Relationhip
+    url(r'^protocols/(?P<pk>[0-9]+)/subj_fam/create/$',
+        views.ProtocolSubjFamDetailView.as_view(),
+        name='protocol-subjFam-create'),
     # get all realtionships in a protocol
-    url(r'^protocols/(?P<pk>[0-9]+)/pedigree/$',
-        views.ProtocolPedigreeDetailView.as_view(),
-        name='protocol-pedigree'),
+    url(r'^protocols/(?P<pk>[0-9]+)/subj_fam/$',
+        views.ProtocolSubjFamDetailView.as_view(),
+        name='protocol-subjFam'),
     url(
         r'^protocoldatasources/(?P<pk>[0-9]+)/subjects/(?P<subject>[0-9]+)/records/$',
         views.PDSSubjectRecordsView.as_view(),
@@ -64,18 +64,18 @@ urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     # to create a relationship between subjects
-    url(r'^pedigree/create$',
+    url(r'^subj_fam/create$',
         views.RelationshipDetailView.as_view(),
-        name='pedigree-create'),
+        name='subjFam-create'),
     # get relationships by subject id
-    url(r'^pedigree/subject_id/(?P<pk>[0-9]+)/$',
+    url(r'^subj_fam/subject_id/(?P<pk>[0-9]+)/$',
         views.RelationshipDetailView.as_view(),
-        name='pedigree-get-by-subject-id'),
+        name='subjFam-get-by-subject-id'),
     # get relationships by protocol
-    url(r'^pedigree/protocol_id/(?P<pk>[0-9]+)/$',
+    url(r'^subj_fam/protocol_id/(?P<pk>[0-9]+)/$',
         views.RelationshipDetailView.as_view(),
-        name='pedigree-get-by-protocol-id'),
-    url(r'^pedigree/relationship_types/',
+        name='subjFam-get-by-protocol-id'),
+    url(r'^subj_fam/relationship_types/',
         views.RelationshipDetailView.as_view(),
-        name='pedigree-get-rel-types')
+        name='subjFam-get-rel-types')
 ]

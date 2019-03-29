@@ -4,7 +4,7 @@ import subject from './subject';
 import pds from './pds';
 import record from './record';
 import notification from './notification';
-import pedigree from './pedigree';
+import subjFam from './subjFam';
 
 const rootReducer = combineReducers({
   protocol,
@@ -12,7 +12,7 @@ const rootReducer = combineReducers({
   pds,
   record,
   notification,
-  pedigree,
+  subjFam,
 });
 
 export default rootReducer;

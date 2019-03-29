@@ -6,9 +6,9 @@ import BackButton from '../BackButton';
 import LoadingGif from '../LoadingGif';
 import SubjectPanel from './SubjectPanel';
 import RecordPanel from './RecordPanel';
-import PedigreePanel from './PedigreePanel'
+import SubjFamPanel from './SubjFamPanel'
 import EditLabelModal from './Modals/EditLabel';
-import PedigreeEditView from './PedigreePanel/pedigreeEditView';
+import SubjFamEditView from './SubjFamPanel/subjFamEditView';
 import * as ProtocolActions from '../../actions/protocol';
 import * as SubjectActions from '../../actions/subject';
 
@@ -40,8 +40,8 @@ class SubjectView extends React.Component {
               <SubjectPanel subject={subject} edit={this.props.params.edit} path={path} />
             </section>
             <section>
-              <PedigreePanel />
-              {this.props.pedigree.addPedigreeRelMode ? <PedigreeEditView/> : null}
+              <SubjFamPanel />
+              {this.props.subjFam.addSubjFamRelMode ? <SubjFamEditView/> : null}
             </section>
           </div>
           <div className="col-md-8">
@@ -62,7 +62,7 @@ SubjectView.propTypes = {
   subject: React.PropTypes.object,
   protocol: React.PropTypes.object,
   editLabelMode: React.PropTypes.bool,
-  addPedigreeRelMode: React.PropTypes.bool,
+  addSubjFamRelMode: React.PropTypes.bool,
   location: React.PropTypes.object,
   params: React.PropTypes.object,
 };
@@ -76,8 +76,8 @@ function mapStateToProps(state) {
       items: state.subject.items,
       activeSubject: state.subject.activeSubject,
     },
-    pedigree: {
-      addPedigreeRelMode: state.pedigree.addPedigreeRelMode,
+    subjFam: {
+      addSubjFamRelMode: state.subjFam.addSubjFamRelMode,
     },
     editLabelMode: state.record.editLabelMode,
   };

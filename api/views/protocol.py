@@ -14,7 +14,7 @@ from api.serializers import OrganizationSerializer, ProtocolSerializer, \
 from api.utilities import SubjectUtils
 from ehb_client.requests.exceptions import PageNotFound
 from ehb_client.requests.subject_request_handler import Subject
-from ehb_client.requests.pedigree_relationships_handler import PedigreeRelationship
+from ehb_client.requests.subj_fam_relationships_handler import SubjFamRelationship
 from rest_framework.response import Response
 
 from rest_framework import viewsets
@@ -417,7 +417,7 @@ class ProtocolSubjectDetailView(BRPApiView):
         return Response({'info': 'Subject deleted'}, status=200)
 
 
-class ProtocolPedigreeDetailView(BRPApiView):
+class ProtocolSubjFamDetailView(BRPApiView):
 
     # will return True if subject inputs are valid
     def check_subject(self, subject_1, subject_2=None):
@@ -484,7 +484,7 @@ class ProtocolPedigreeDetailView(BRPApiView):
             return Response(req_body_valid, status=400)
 
         try:
-            new_relationship = PedigreeRelationship(
+            new_relationship = SubjFamRelationship(
                 subject_1_id=relationship['subject_1'],
                 subject_2_id=relationship['subject_2'],
                 subject_1_role=relationship['subject_1_role'],
@@ -497,12 +497,12 @@ class ProtocolPedigreeDetailView(BRPApiView):
         r = self.relationship_HB_handler.create(new_relationship)[0]
         success = r.get('success')
         errors = r.get('errors')
-        relationship = r.get(PedigreeRelationship.identityLabel)
+        relationship = r.get(SubjFamRelationship.identityLabel)
 
         # Dont proceed if creation was not a success
         if not success:
             try:
-                relationship = json.loads(PedigreeRelationship.json_from_identity(relationship))
+                relationship = json.loads(SubjFamRelationship.json_from_identity(relationship))
             except:
                 pass  # because either way we are replying with error info
             return Response(
@@ -510,7 +510,7 @@ class ProtocolPedigreeDetailView(BRPApiView):
                 status=422)
 
         return Response(
-            [{"success": success, "relationship": json.loads(PedigreeRelationship.json_from_identity(new_relationship)), "errors": errors}],
+            [{"success": success, "relationship": json.loads(SubjFamRelationship.json_from_identity(new_relationship)), "errors": errors}],
             headers={'Access-Control-Allow-Origin': '*'},
             status=200
         )
@@ -528,7 +528,7 @@ class ProtocolPedigreeDetailView(BRPApiView):
                 valid_subject = self.check_subject(subject)
                 if valid_subject is True:
                     r = self.relationship_HB_handler.get(subject_id=subject)
-                    r = json.loads(PedigreeRelationship.json_from_identity(r))
+                    r = json.loads(SubjFamRelationship.json_from_identity(r))
                     return Response(
                         {"relationships": r},
                         status=200
@@ -537,7 +537,7 @@ class ProtocolPedigreeDetailView(BRPApiView):
                     return Response(valid_subject, status=400)
             else:
                 r = self.relationship_HB_handler.get(protocol_id=pk)
-                r = json.loads(PedigreeRelationship.json_from_identity(r))
+                r = json.loads(SubjFamRelationship.json_from_identity(r))
                 return Response(
                     {"relationships": r},
                     status=200

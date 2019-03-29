@@ -4,8 +4,7 @@ from operator import itemgetter, attrgetter
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 
-from ehb_client.requests.pedigree_relationships_handler import PedigreeRelationship
-# from ehb_client.requests.pedigree_relationships_handler import RelationshipType
+from ehb_client.requests.subj_fam_relationships_handler import SubjFamRelationship
 from ehb_client.requests.subject_request_handler import Subject
 from .base import BRPApiView
 from api.models.protocols import Protocol
@@ -73,7 +72,7 @@ class RelationshipDetailView(BRPApiView):
             return Response(req_body_valid, status=400)
 
         try:
-            new_relationship = PedigreeRelationship(
+            new_relationship = SubjFamRelationship(
                 subject_1=relationship['subject_1'],
                 subject_2=relationship['subject_2'],
                 subject_1_role=relationship['subject_1_role'],
@@ -86,12 +85,12 @@ class RelationshipDetailView(BRPApiView):
         r = self.relationship_HB_handler.create(new_relationship)[0]
         success = r.get('success')
         errors = r.get('errors')
-        relationship = r.get(PedigreeRelationship.identityLabel)
+        relationship = r.get(SubjFamRelationship.identityLabel)
 
         # Dont proceed if creation was not a success
         if not success:
             try:
-                relationship = json.loads(PedigreeRelationship.json_from_identity(relationship))
+                relationship = json.loads(SubjFamRelationship.json_from_identity(relationship))
             except:
                 pass  # because either way we are replying with error info
             return Response(
@@ -99,7 +98,7 @@ class RelationshipDetailView(BRPApiView):
                 status=422)
 
         return Response(
-            [{"success": success, "relationship": json.loads(PedigreeRelationship.json_from_identity(new_relationship)), "errors": errors}],
+            [{"success": success, "relationship": json.loads(SubjFamRelationship.json_from_identity(new_relationship)), "errors": errors}],
             headers={'Access-Control-Allow-Origin': '*'},
             status=200
         )
