@@ -7,8 +7,8 @@ from ehb_client.requests.external_system_request_handler import ExternalSystemRe
 from ehb_client.requests.subject_request_handler import SubjectRequestHandler
 from ehb_client.requests.organization_request_handler import OrganizationRequestHandler  # noqa
 from ehb_client.requests.group_request_handler import GroupRequestHandler
-from ehb_client.requests.pedigree_relationships_handler import PedigreeRelationshipRequestHandeler
-from ehb_client.requests.pedigree_relationships_handler import RelationshipTypeRequestHandler
+from ehb_client.requests.subj_fam_relationships_handler import SubjFamRelationshipRequestHandeler
+from ehb_client.requests.subj_fam_relationships_handler import RelationshipTypeRequestHandler
 
 
 class ServiceClient(object):
@@ -46,7 +46,7 @@ class ServiceClient(object):
     subj_client = SubjectRequestHandler(host, root_path, isSecure, api_key)
     org_client = OrganizationRequestHandler(host, root_path, isSecure, api_key)
     group_client = GroupRequestHandler(host, root_path, isSecure, api_key)
-    relationship_client = PedigreeRelationshipRequestHandeler(host, root_path, isSecure, api_key)
+    relationship_client = SubjFamRelationshipRequestHandeler(host, root_path, isSecure, api_key)
     relationship_type_client = RelationshipTypeRequestHandler(host, root_path, isSecure, api_key)
 
     SUBJECT = 0
