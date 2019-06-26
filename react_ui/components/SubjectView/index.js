@@ -1,10 +1,13 @@
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 // jscs:disable maximumLineLength
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Divider, Header, Image, Segment } from 'semantic-ui-react'
 import BackButton from '../BackButton';
 import LoadingGif from '../LoadingGif';
 import SubjectPanel from './SubjectPanel';
+import SubjectCardEdit from './SubjectPanel/SubjectCardEdit'
 import RecordPanel from './RecordPanel';
 import SubjFamPanel from './SubjFamPanel'
 import EditLabelModal from './Modals/EditLabel';
@@ -16,18 +19,22 @@ class SubjectView extends React.Component {
 
   componentDidMount() {
     const { dispatch } = this.props;
-    const protocolId = this.props.params.prot_id;
-    const subjectId = this.props.params.sub_id;
+    const protocolId = this.props.match.params.prot_id;
+    const subjectId = this.props.match.params.sub_id;
 
     if (!this.props.subject.activeSubject) {
       dispatch(SubjectActions.fetchSubject(protocolId, subjectId));
     }
 
     if (!this.props.protocol.activeProtocol) {
-      dispatch(ProtocolActions.fetchProtocol(protocolId));
+      dispatch(ProtocolActions.setActiveProtocol(protocolId));
     }
   }
 
+  componentWillUnmount() {
+    const { dispatch } = this.props;
+    dispatch(ProtocolActions.setActiveProtocol(null));
+  }
   render() {
     // Checks for empty subject state and updates it if necessary
     const subject = this.props.subject.activeSubject;
@@ -37,8 +44,15 @@ class SubjectView extends React.Component {
         <div className="row">
           <div className="col-md-4">
             <section>
+<<<<<<< HEAD
               <SubjectPanel subject={subject} edit={this.props.params.edit} path={path} />
             </section>
+=======
+              <SubjectPanel subject={subject} path={path} />
+              {this.props.subject.editSubjectMode ? <SubjectCardEdit subject={subject}/> : null}
+            </section>
+            <hr />
+>>>>>>> upgrade_react
             <section>
               <SubjFamPanel />
               {this.props.subjFam.addSubjFamRelMode ? <SubjFamEditView/> : null}
@@ -58,6 +72,7 @@ class SubjectView extends React.Component {
 }
 
 SubjectView.propTypes = {
+<<<<<<< HEAD
   dispatch: React.PropTypes.func,
   subject: React.PropTypes.object,
   protocol: React.PropTypes.object,
@@ -65,16 +80,30 @@ SubjectView.propTypes = {
   addSubjFamRelMode: React.PropTypes.bool,
   location: React.PropTypes.object,
   params: React.PropTypes.object,
+=======
+  dispatch: PropTypes.func,
+  subject: PropTypes.object,
+  protocol: PropTypes.object,
+  editLabelMode: PropTypes.bool,
+  addSubjFamRelMode: PropTypes.bool,
+  location: PropTypes.object,
+  params: PropTypes.object,
+>>>>>>> upgrade_react
 };
 
 function mapStateToProps(state) {
   return {
     protocol: {
       activeProtocol: state.protocol.activeProtocol,
+      items: state.protocol.items,
     },
     subject: {
       items: state.subject.items,
       activeSubject: state.subject.activeSubject,
+      editSubjectMode: state.subject.editSubjectMode,
+    },
+    subjFam: {
+      addSubjFamRelMode: state.subjFam.addSubjFamRelMode,
     },
     subjFam: {
       addSubjFamRelMode: state.subjFam.addSubjFamRelMode,
