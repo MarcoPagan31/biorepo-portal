@@ -134,7 +134,7 @@ class AccountsModuleTests(TestCase):
             user = backend.authenticate('admin@email.chop.edu', 'Chop1234')
             # Check search calls
             search_call_list = ldap.search.call_args_list
-            self.assertTrue(call('searchdn', '(sAMAccountName=admin)') in search_call_list)
+            self.assertTrue(call('searchdn', '(sAMAccountName={0})') in search_call_list)
             # Check binds
             self.assertTrue(ldap.bind.called)
             self.assertTrue(ldap.unbind.called)
