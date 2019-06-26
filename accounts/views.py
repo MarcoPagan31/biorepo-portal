@@ -21,7 +21,7 @@ def throttled_login(request):
     if request.user.is_authenticated():
         return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
 
-    is_IE = re.findall(r'MSIE', request.META['HTTP_USER_AGENT'])
+    is_IE = re.findall(r'MSIE', request.META.get('HTTP_USER_AGENT'))
     template_name = 'accounts/login.html'
 
     login_allowed = request.session.get('login_allowed', True)
