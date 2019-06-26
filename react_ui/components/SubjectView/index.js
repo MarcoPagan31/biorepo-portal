@@ -44,15 +44,10 @@ class SubjectView extends React.Component {
         <div className="row">
           <div className="col-md-4">
             <section>
-<<<<<<< HEAD
-              <SubjectPanel subject={subject} edit={this.props.params.edit} path={path} />
-            </section>
-=======
               <SubjectPanel subject={subject} path={path} />
               {this.props.subject.editSubjectMode ? <SubjectCardEdit subject={subject}/> : null}
             </section>
             <hr />
->>>>>>> upgrade_react
             <section>
               <SubjFamPanel />
               {this.props.subjFam.addSubjFamRelMode ? <SubjFamEditView/> : null}
@@ -72,15 +67,6 @@ class SubjectView extends React.Component {
 }
 
 SubjectView.propTypes = {
-<<<<<<< HEAD
-  dispatch: React.PropTypes.func,
-  subject: React.PropTypes.object,
-  protocol: React.PropTypes.object,
-  editLabelMode: React.PropTypes.bool,
-  addSubjFamRelMode: React.PropTypes.bool,
-  location: React.PropTypes.object,
-  params: React.PropTypes.object,
-=======
   dispatch: PropTypes.func,
   subject: PropTypes.object,
   protocol: PropTypes.object,
@@ -88,7 +74,6 @@ SubjectView.propTypes = {
   addSubjFamRelMode: PropTypes.bool,
   location: PropTypes.object,
   params: PropTypes.object,
->>>>>>> upgrade_react
 };
 
 function mapStateToProps(state) {

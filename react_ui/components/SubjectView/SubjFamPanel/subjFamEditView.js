@@ -125,10 +125,7 @@ class SubjFamEditView extends React.Component {
       }
       dispatch(SubjFamActions.addSubjFamRel(this.props.protocol.activeProtocolId, newRel))
       .then(dispatch(SubjFamActions.fetchSubjFam(this.props.protocol.activeProtocolId, newRel.subject_1)))
-<<<<<<< HEAD
-=======
       this.handleCloseClick();
->>>>>>> upgrade_react
     }
   }
 
