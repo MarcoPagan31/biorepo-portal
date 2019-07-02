@@ -23,11 +23,8 @@ def throttled_login(request):
     if request.user.is_authenticated():
         return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
 
-<<<<<<< HEAD
-=======
     if (re.findall(r'MSIE', user_agent) or re.findall(r'Trident', user_agent)):
         is_IE = True
->>>>>>> upgrade_react_issue_257
     template_name = 'accounts/login.html'
 
     login_allowed = request.session.get('login_allowed', True)
