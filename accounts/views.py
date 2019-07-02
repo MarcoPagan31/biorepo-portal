@@ -16,11 +16,18 @@ import re
 @never_cache
 def throttled_login(request):
     "Displays the login form and handles the login action."
+    is_IE = False
+    user_agent = request.META['HTTP_USER_AGENT']
 
     # if the user is already logged-in, simply redirect them to the entry page
     if request.user.is_authenticated():
         return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
 
+<<<<<<< HEAD
+=======
+    if (re.findall(r'MSIE', user_agent) or re.findall(r'Trident', user_agent)):
+        is_IE = True
+>>>>>>> upgrade_react_issue_257
     template_name = 'accounts/login.html'
 
     login_allowed = request.session.get('login_allowed', True)
@@ -38,24 +45,26 @@ def throttled_login(request):
             }
             return render(request, template_name, {
                 'form': form,
+                'is_IE': is_IE,
             })
         except:
             raise
 
         login_allowed = throttle_login(request)
 
-    if login_allowed:
-        response = login(request, template_name=template_name,
-                         authentication_form=BrpAuthenticationForm)
-        # We know if the response is a redirect, the login
-        # was successful, thus we can clear the throttled login counter
-        if isinstance(response, HttpResponseRedirect):
-            request.META['action'] = 'Login successful.'
-            clear_throttled_login(request)
-        return response
+        if login_allowed:
+            response = login(request, template_name=template_name,
+                             authentication_form=BrpAuthenticationForm)
+            # We know if the response is a redirect, the login
+            # was successful, thus we can clear the throttled login counter
+            if isinstance(response, HttpResponseRedirect):
+                request.META['action'] = 'Login successful.'
+                clear_throttled_login(request)
+            return response
 
     return render(request, template_name, {
         'login_not_allowed': not login_allowed,
+        'is_IE': is_IE,
     })
 
 
