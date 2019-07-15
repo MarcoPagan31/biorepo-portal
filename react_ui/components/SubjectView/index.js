@@ -90,9 +90,6 @@ function mapStateToProps(state) {
     subjFam: {
       addSubjFamRelMode: state.subjFam.addSubjFamRelMode,
     },
-    subjFam: {
-      addSubjFamRelMode: state.subjFam.addSubjFamRelMode,
-    },
     editLabelMode: state.record.editLabelMode,
   };
 }
