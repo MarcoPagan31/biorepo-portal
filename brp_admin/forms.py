@@ -21,8 +21,8 @@ class ProtocolForm(forms.Form):
 
 
 class UserForm(forms.Form):
-    user = forms.ModelChoiceField(queryset=User.objects.all(), empty_label="Select a User")
+    user = forms.ModelChoiceField(queryset=User.objects.all().order_by('username'), empty_label="Select a User")
 
 class NautilusCredentialForm(forms.Form):
-    username = forms.ModelChoiceField(queryset=User.objects.all(), empty_label="Select a User")
+    username = forms.ModelChoiceField(queryset=User.objects.all().order_by('username'), empty_label="Select a User")
     password = forms.CharField(max_length=50, label='New Nautilus Password')
