@@ -452,15 +452,73 @@ class ProtocolSubjectDetailView(BRPApiView):
         )
 
     def delete(self, request, pk, subject, *args, **kwargs):
-        try:
-            subject = self.s_rh.get(id=subject)
-            protocol = Protocol.objects.get(pk=pk)
-            self.s_rh.delete(id=subject.id)
-            SubjectUtils.delete_protocol_subject_record_group(protocol, subject)
-        except:
-            return Response({'error': 'Unable to delete subject'}, status=400)
+        if request.user.is_superuser:
+            try:
+                subject = self.s_rh.get(id=subject)
+                protocol = Protocol.objects.get(pk=pk)
+                group_id = self.get_group_id(protocol.immutable_key.key)
+                # instead of deleting a subject - we want to just remove them from the subject group
+                # self.s_rh.delete(id=subject.id)
+                self.remove_sub_from_ehb_group(subject.id, group_id)
+                SubjectUtils.delete_protocol_subject_record_group(protocol, subject)
+            except:
+                return Response({'error': 'Unable to delete subject'}, status=400)
 
-        return Response({'info': 'Subject deleted'}, status=200)
+            return Response({'info': 'Subject deleted'}, status=200)
+        else:
+            return Response(
+                {"detail": "You are not authorized to view subjects in this protocol"},
+                status=403
+            )
+
+    @staticmethod
+    def get_group_id(key):
+        get_group_url = '/api/group/?name=' +'BRP:' + key
+        group = ServiceClient.ehb_api(get_group_url, "GET").json()
+        return group['id']
+
+    @staticmethod
+    def remove_sub_from_ehb_group(sub_pk, group_pk):
+        url = '/api/group/id/' + str(group_pk) + '/subjects/id/' + str(sub_pk) + '/'
+        return ServiceClient.ehb_api(url, "DELETE")
+
+    @staticmethod
+    def updateEhbSubject(subjectID, new_subject, old_subject):
+        subject_update_api_url = "/api/subject/"
+        ehb_update_subj = {}
+
+        ehb_update_subj["id"] = subjectID
+        ehb_update_subj["old_subject"] = deepcopy(old_subject)
+        ehb_update_subj["new_subject"] = deepcopy(new_subject)
+        ehb_update_subj_body = '[' + str(json.dumps(deepcopy(ehb_update_subj))) + ']'
+        return ServiceClient.ehb_api(subject_update_api_url, "PUT", json.loads(ehb_update_subj_body))
+
+    @classmethod
+    def update_subject_group(cls, protocol, subject_update, group):
+        new_group_name = SubjectUtils.protocol_subject_record_group_name(protocol, subject_update)
+        group.name = new_group_name
+        group.client_key = protocol._settings_prop(
+            'CLIENT_KEY', 'key', '')
+        group.current_client_key(group.client_key)
+        return cls.g_rh.update(group)[0]
+
+    @classmethod
+    def update_subject_cache(cls, protocol_pk, subject_update, new_subject):
+        cache_key = 'protocol{0}_sub_data'.format(protocol_pk)
+        cache_data = cls.cache.get(cache_key)
+        if cache_data:
+            subjects = json.loads(cache_data)
+            if new_subject:
+                subject_update['external_ids'] = []
+                subject_update['external_records'] = []
+                subjects.append(subject_update)
+            else:
+                for i in range(0, len(subjects)):
+                    if subjects[i]['id'] == subject_update['id']:
+                        subjects[i] = subject_update
+            cls.cache.set(cache_key, json.dumps(subjects))
+            if hasattr(cls.cache, 'persist'):
+                cls.cache.persist(cache_key)
 
     @staticmethod
     def updateEhbSubject(subjectID, new_subject, old_subject):
