@@ -1,5 +1,8 @@
 import logging
 import json
+import string
+import random
+import threading
 from datetime import datetime
 
 from copy import deepcopy
@@ -8,7 +11,7 @@ from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 
 from .base import BRPApiView
-from api.models.protocols import Protocol, ProtocolUserCredentials
+from api.models.protocols import Protocol, ProtocolUserCredentials, DataSource
 from api.serializers import OrganizationSerializer, ProtocolSerializer, \
     eHBSubjectSerializer, ProtocolDataSourceSerializer, DataSourceSerializer
 from api.utilities import SubjectUtils
@@ -826,3 +829,266 @@ class ProtocolSubjFamDetailView(BRPApiView):
             logger.info('error updating relationship id {0}'.format(relationship_id))
 
         return Response({'updatedRelationship': updated_relationship, 'oldRelationship': old_relationship}, status=200)
+
+
+class ProtocolSubjectIdView(BRPApiView):
+    """
+    API endpoint that allows creation of Id to be used as de-identifiers in
+    external datasets and external applications not directly connected to the BRP.
+    """
+    def put(self, request, protocol_pk, datasource_pk):
+        try:
+            datasource = DataSource.objects.get(pk=datasource_pk)
+            protocol = Protocol.objects.get(pk=protocol_pk)
+        except:
+            return Response('datasource or protocol does not exist in the BRP', status=404)
+
+        # check to make sure that protocol name is somewhere in the datasource description
+        if not (protocol.name in str(datasource.description)):
+            return Response('protocol name is not in the datasource description', status=400)
+
+        # Check to make sure user is authorized for this protocol
+        if not protocol.isUserAuthorized(request.user):
+            return Response('user is not authorized for this protocol', status=403)
+        # create a thread that will keep running after response was returned
+        thread = threading.Thread(target=self.full_proccess_add_subs_to_ds, args=[protocol, datasource])
+        # an attribute to stop thread after complete
+        thread.setDaemon(False)
+        thread.start()
+
+        return Response('Adding subjects to datasource, use get API call in a few minutes for large protocols', status=200)
+
+    def get(self, request, protocol_pk, datasource_pk):
+        try:
+            datasource = DataSource.objects.get(pk=datasource_pk)
+            protocol = Protocol.objects.get(pk=protocol_pk)
+        except:
+            return Response('datasource or protocol does not exist in the BRP', status=404)
+
+        # check to make sure that protocol name is somewhere in the datasource description
+        if not (protocol.name in str(datasource.description)):
+            return Response('protocol name is not in the datasource description', status=400)
+
+        # Check to make sure user is authorized for this protocol
+        if not protocol.isUserAuthorized(request.user):
+            return Response('user is not authorized for this protocol', status=403)
+
+        # get ehb PK of the external system since it might not match what is in the BRP
+        eHB_ex_sys_pk, msg, status = self.get_ehb_external_system(datasource.name)
+        if status is not 200:
+            return Response(msg, status=status)
+
+        # get all subjects in the protocol
+        subjects_protocol, msg, status = self.get_protocol_subjects(protocol)
+        if status is not 200:
+            return Response(msg, status=status)
+
+        # get external records for subjects
+        msg, status, sub_ids = self.get_subject_external_ids(eHB_ex_sys_pk)
+        if status is not 200:
+            return Response(msg, status=status)
+
+        formatted_sub_ids, msg, status = self.format_sub_id_return(sub_ids, subjects_protocol, protocol)
+        if status is not 200:
+            return Response(msg, status=status)
+
+        return Response(formatted_sub_ids, status=200)
+
+    def full_proccess_add_subs_to_ds(self, protocol, datasource):
+
+        # get all subjects in the protocol
+        subjects_protocol, msg, status = self.get_protocol_subjects(protocol)
+        if status is not 200:
+            logger.info(msg + ' protocol: {}, datasource {}'.format(protocol.name, datasource.name))
+
+        # get ehb PK of the external system since it might not match what is in the BRP
+        eHB_ex_sys_pk, msg, status = self.get_ehb_external_system(datasource.name)
+        if status is not 200:
+            logger.info(msg + ' protocol: {}, datasource {}'.format(protocol.name, datasource.name))
+
+        # get all subjects in DataSource
+        subs_pk_datasource, subs_record_id, msg, status = self.get_datasource_subjects(datasource, eHB_ex_sys_pk)
+        if status is not 200:
+            logger.info(msg + ' protocol: {}, datasource {}'.format(protocol.name, datasource.name))
+
+        # get list of subjects that need to be added to the eHB datasource
+        subs_to_be_added, msg, status = self.check_all_sub_in_datasource(subjects_protocol, subs_pk_datasource)
+        if status is not 200:
+            logger.info(msg + ' protocol: {}, datasource {}'.format(protocol.name, datasource.name))
+
+        # add subjects to the eHB DataSource
+        msg, status = self.add_subs_to_datasource(subs_to_be_added, subs_record_id, datasource)
+        if status is not 200:
+            logger.info(msg + ' protocol: {}, datasource {}'.format(protocol.name, datasource.name))
+
+        # get subjects external record ids
+        msg, status, sub_ids = self.get_subject_external_ids(eHB_ex_sys_pk)
+        if status is not 200:
+            logger.info(msg + ' protocol: {}, datasource {}'.format(protocol.name, datasource.name))
+
+        formatted_sub_ids, msg, status = self.format_sub_id_return(sub_ids, subjects_protocol, protocol)
+        if status is not 200:
+            logger.info(msg + ' protocol: {}, datasource {}'.format(protocol.name, datasource.name))
+
+        logger.info('successfully initiated IDs for protocol: {}, datasource {}'.format(protocol.name, datasource.name))
+
+    def format_sub_id_return(self, ex_system_subjects, protocol_subs, protocol):
+        protocol_orgs = {}
+        ehb_org_url = '/api/organization/query/'
+        formatted_subs = []
+        msg = ' '
+        status_code = 200
+        protocol_organizations = protocol.organizations.all()
+
+        for item in protocol_organizations:
+            ehb_org_payload = [{'name': item.name}]
+            ehb_response = ServiceClient.ehb_api(ehb_org_url, "POST", ehb_org_payload)
+            org_json = ehb_response.json()
+            protocol_orgs[int(org_json[0]['organization']['id'])] = item.name
+
+        try:
+            for sub in protocol_subs:
+                sub_ex_rec_id = next((ex_sub_rec for ex_sub_rec in ex_system_subjects if ex_sub_rec['subject'] == sub['id']), None)
+                if not sub_ex_rec_id:
+                    msg = 'not all subjects in this protocol are added to this datasource'
+                    status_code = 315
+                    return [], msg, status_code
+                formatted_subs.append({'record_id': sub_ex_rec_id['record_id'],
+                                      'sub_org_id': sub['organization_subject_id'],
+                                       'sub_org_name': protocol_orgs[int(sub['organization_id'])]})
+        except:
+            msg = 'error formatting subjects and their external record'
+            status_code = 300
+        return formatted_subs, msg, status_code
+
+    def get_subject_external_ids(self, ehb_external_system):
+        msg = ' '
+        status_code = 200
+        subject_ids = {}
+        try:
+            ehb_api_url = "/api/externalsystem/id/{}/records/".format(str(ehb_external_system))
+            ehb_response = ServiceClient.ehb_api(ehb_api_url, "GET")
+            subject_ids = ehb_response.json()
+            if ehb_response.status_code != 200:
+                msg = 'there was an error getting subject ids from the eHB'
+                status_code = ehb_response.status_code
+        except:
+            msg = 'error getting records from the eHB'
+            status_code = 400
+
+        return msg, status_code, subject_ids
+
+    def get_ehb_external_system(self, brp_external_sys_name):
+        msg = ' '
+        status_code = 200
+        ehb_ex_sys_pk = None
+        success = True
+        api_url = '/api/externalsystem/query/'
+        payload = [{"name": brp_external_sys_name}]
+        try:
+            ehb_response = ServiceClient.ehb_api(api_url, "POST", payload)
+            ehb_ex_sys_json = ehb_response.json()
+            ehb_ex_sys_pk = ehb_ex_sys_json[0]['externalSystem']['id']
+        except:
+            success = False
+        if (not success) or (ehb_response.status_code is not 200):
+            msg = 'cannot retreive external system from the eHB'
+            status_code = 400
+
+        return ehb_ex_sys_pk, msg, status_code
+
+    def add_subs_to_datasource(self, subs, datasource_subs, datasource, label=1):
+        msg = ' '
+        status_code = 200
+
+        try:
+            for sub in subs:
+
+                new_id = self.generate_unique_random_id(datasource_subs)
+                ehb_response = self.add_subject_to_eHB_datasource(sub, datasource, new_id, label)
+                if ehb_response.status_code == 200:
+                    datasource_subs.append(new_id)
+        except:
+            msg = 'error adding subjects to the eHB datasource'
+            status_code = 300
+        return msg, status_code
+
+    @staticmethod
+    def get_protocol_subjects(protocol):
+        msg = ' '
+        status_code = 200
+        subjects_protocol = None
+        try:
+            subjects_protocol_obj = protocol.getSubjects()
+            if subjects_protocol_obj:
+                subjects_protocol = [eHBSubjectSerializer(sub).data for sub in subjects_protocol_obj]
+            else:
+                subjects_protocol = None
+        except:
+
+            msg = 'there are no subjects aligned to this protocol'
+            status_code = 204
+        if (subjects_protocol is None):
+
+            msg = 'there are no subjects aligned to this protocol'
+            status_code = 204
+
+        return subjects_protocol, msg, status_code
+
+    def check_all_sub_in_datasource(self, protocol_subs, datasource_subs):
+        """
+        This function will identify subjects that need to be added to the eHB
+        DataSource
+        """
+        msg = ' '
+        status_code = 200
+        subs_to_be_added = []
+        for subject in protocol_subs:
+            if subject['id'] not in datasource_subs:
+                subs_to_be_added.append(subject['id'])
+        return subs_to_be_added, msg, status_code
+
+    def add_subject_to_eHB_datasource(self, sub_pk, datasource, sub_record_id, label=1):
+        ehb_api_url = '/api/externalrecord/'
+        payload = [{
+            'subject': str(sub_pk),
+            'external_system': str(datasource.getExternalSystem().id),
+            'record_id': sub_record_id,
+            'path': datasource.url,
+            'label': label
+        }]
+        ehb_response = ServiceClient.ehb_api(ehb_api_url, "POST", payload)
+        return ehb_response
+
+    @staticmethod
+    def get_datasource_subjects(datasource, datasource_ehb_pk):
+        msg = ' '
+        status_code = 200
+        subjects_pk = []
+        subjects_record_id = []
+        ehb_api_url = "/api/externalsystem/id/{}/records/".format(datasource_ehb_pk)
+        try:
+            ehb_response = ServiceClient.ehb_api(ehb_api_url, "GET")
+            for sub in ehb_response.json():
+                subjects_pk.append(sub['subject'])
+                subjects_record_id.append(sub['record_id'])
+        except:
+            msg = 'there was an error getting subjects aligned to datasource'
+            status_code = 400
+        return subjects_pk, subjects_record_id, msg, status_code
+
+    @staticmethod
+    def generate_random_id():
+        seed = 493827561
+        length = 10
+        chars = string.ascii_uppercase + string.digits
+        random.seed(random.randrange(0, seed))
+        return ''.join(random.choice(chars) for idx in range(length))
+
+    def generate_unique_random_id(self, exisiting_ids):
+        success = False
+        while not success:
+            new_id = self.generate_random_id()
+            if (exisiting_ids is None) or (new_id not in exisiting_ids):
+                success = True
+        return new_id
