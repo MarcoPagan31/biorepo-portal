@@ -968,14 +968,18 @@ class ProtocolSubjectIdView(BRPApiView):
         try:
             ehb_api_url = "/api/externalsystem/id/{}/records/".format(str(ehb_external_system))
             ehb_response = ServiceClient.ehb_api(ehb_api_url, "GET")
-            subject_ids = ehb_response.json()
             if ehb_response.status_code != 200:
                 msg = 'there was an error getting subject ids from the eHB'
                 status_code = ehb_response.status_code
+                return msg, status_code, []
         except:
             msg = 'error getting records from the eHB'
             status_code = 400
-
+        try:
+            subject_ids = ehb_response.json()
+        except:
+            msg = 'error processing eHB resonse into json'
+            status_code = 400
         return msg, status_code, subject_ids
 
     def get_ehb_external_system(self, brp_external_sys_name):
